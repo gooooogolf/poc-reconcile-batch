@@ -1,12 +1,12 @@
-package com.ascend.acm.pocreconcilebatch;
+package com.acm.reconcile;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PocReconcileBatchApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PocReconcileBatchApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }
