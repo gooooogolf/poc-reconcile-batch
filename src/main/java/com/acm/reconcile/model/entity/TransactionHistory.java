@@ -1,12 +1,15 @@
-package com.acm.reconcile.model;
+package com.acm.reconcile.model.entity;
 
 import java.util.Date;
+
+import javax.persistence.Entity;
 
 import com.acm.reconcile.model.type.Status;
 import com.acm.reconcile.model.type.TxnType;
 
 import lombok.Data;
 @Data
+@Entity
 public class TransactionHistory {
 	private String uuid;
 	private Date orderDate;

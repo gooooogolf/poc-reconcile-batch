@@ -2,8 +2,8 @@ package com.acm.reconcile.processor;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.acm.reconcile.model.PaymentTransaction;
-import com.acm.reconcile.model.TransactionHistory;
+import com.acm.reconcile.model.entity.PaymentTransaction;
+import com.acm.reconcile.model.entity.TransactionHistory;
 
 import lombok.extern.slf4j.Slf4j;
 

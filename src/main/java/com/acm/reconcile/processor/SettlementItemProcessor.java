@@ -2,15 +2,15 @@ package com.acm.reconcile.processor;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.acm.reconcile.model.PaymentTransaction;
 import com.acm.reconcile.model.Settlement;
+import com.acm.reconcile.model.entity.PaymentTransaction;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SettlementItemProcessor implements ItemProcessor<Settlement, PaymentTransaction> {
 	
 	@Override
-	public PaymentTransaction process(Settlement settlement) throws Exception {
+	public PaymentTransaction process(final Settlement settlement) throws Exception {
 		PaymentTransaction paymentTxn = new PaymentTransaction();
 		paymentTxn.setCardNo(settlement.getCardNo());
 		paymentTxn.setFlag(settlement.getFlag());
