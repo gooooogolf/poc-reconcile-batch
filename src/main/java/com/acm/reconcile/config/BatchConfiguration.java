@@ -1,6 +1,8 @@
 package com.acm.reconcile.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -16,6 +18,8 @@ import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort.Direction;
 
 import com.acm.reconcile.listener.JobCompletionNotificationListener;
@@ -40,6 +44,8 @@ public class BatchConfiguration {
 
 	@Autowired
 	private TransactionHistoryRepository transactionHistoryRepository;
+	
+	private int maxThreads = 10;
 
 	// tag::readerwriterprocessor[]
 
@@ -47,8 +53,11 @@ public class BatchConfiguration {
 	public RepositoryItemReader<TransactionHistory> reader() {
 		RepositoryItemReader<TransactionHistory> reader = new RepositoryItemReader<>();
 		reader.setRepository(transactionHistoryRepository);
-		reader.setMethodName("findAll");
-
+		reader.setMethodName("searchByProductCode");
+		List<Object> arguments = new ArrayList<>();
+        arguments.add("51051000100000000018x");
+        reader.setArguments(arguments);
+        
 		Map<String, Direction> sort = new HashMap<>();
 		sort.put("paymentId", Direction.ASC);
 		reader.setSort(sort);
@@ -70,14 +79,31 @@ public class BatchConfiguration {
 	// tag::jobstep[]
 	@Bean
 	public Job importTxnJob(JobCompletionNotificationListener listener) {
-		return jobBuilderFactory.get("importTxnJob").incrementer(new RunIdIncrementer()).listener(listener)
-				.flow(step1()).end().build();
+		return jobBuilderFactory.get("importTxnJob")
+				.incrementer(new RunIdIncrementer())
+				.listener(listener)
+				.flow(step1())
+				.end()
+				.build();
 	}
 
 	@Bean
 	public Step step1() {
-		return stepBuilderFactory.get("step1").<TransactionHistory, ReconcileResult>chunk(100).reader(reader())
-				.processor(processor()).writer(writer()).build();
+		return stepBuilderFactory.get("step1")
+				.<TransactionHistory, ReconcileResult> chunk(100)
+				.reader(reader())
+				.processor(processor())
+				.writer(writer())
+				.taskExecutor(taskExecutor())
+				.throttleLimit(maxThreads)
+				.build();
 	}
 	// end::jobstep[]
+	
+	@Bean
+	public TaskExecutor taskExecutor() {
+		SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+		taskExecutor.setConcurrencyLimit(maxThreads);
+		return taskExecutor;
+	}
 }
