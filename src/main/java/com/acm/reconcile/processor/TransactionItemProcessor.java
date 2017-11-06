@@ -2,35 +2,28 @@ package com.acm.reconcile.processor;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.acm.reconcile.model.entity.PaymentTransaction;
-import com.acm.reconcile.model.entity.TransactionHistory;
+import com.acm.reconcile.model.ReconcileResult;
+import com.acm.reconcile.model.TransactionHistory;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TransactionItemProcessor implements ItemProcessor<TransactionHistory, PaymentTransaction>{
+public class TransactionItemProcessor implements ItemProcessor<TransactionHistory, ReconcileResult> {
+
+	private static int txnNo = 1;
 
 	@Override
-	public PaymentTransaction process(final TransactionHistory txnHistory) throws Exception {
-		PaymentTransaction paymentTxn = new PaymentTransaction();
-		paymentTxn.setCardNo(txnHistory.getCardNumber());
-		paymentTxn.setFlag(null);
-		paymentTxn.setPan(null);
-		paymentTxn.setProfileName(null);
-		paymentTxn.setSystemDate(null);
-		paymentTxn.setTmnId(txnHistory.getTmnId());
-		paymentTxn.setTransactionAmount(txnHistory.getTransactionAmount());
-		paymentTxn.setTransactionDate(null);
-		paymentTxn.setTransactionDescription(null);
-		paymentTxn.setTransactionId(txnHistory.getPartnerTransactionId());
-		paymentTxn.setTransactionNarrative1(null);
-		paymentTxn.setTransactionNarrative2(null);
-		paymentTxn.setTransactionNarrative3(null);
-		paymentTxn.setTransactionNarrative4(null);
-		paymentTxn.setTransactionType(null);
-		
-		log.info("[Txn History] TxnId: {}, Amount: {}", txnHistory.getPartnerTransactionId(), txnHistory.getTransactionAmount());
-		return paymentTxn;
+	public ReconcileResult process(TransactionHistory item) throws Exception {
+		log.info("Converting TransactionHistory to AllMemberReconcileResult. Number# {}", txnNo);
+		txnNo++;
+
+		ReconcileResult allMemberReconcileResult = new ReconcileResult();
+		allMemberReconcileResult.setCardNo(item.getCardNumber());
+		allMemberReconcileResult.setTmnId(item.getTmnId());
+		allMemberReconcileResult.setTmnTransactionAmount(item.getTransactionAmount());
+		allMemberReconcileResult.setTmnTransactionId(item.getPartnerTransactionId());
+
+		return allMemberReconcileResult;
 	}
 
 }
